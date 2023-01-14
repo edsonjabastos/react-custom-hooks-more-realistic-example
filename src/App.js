@@ -2,37 +2,25 @@ import React, { useEffect, useState } from "react";
 
 import Tasks from "./components/Tasks/Tasks";
 import NewTask from "./components/NewTask/NewTask";
+import useHttp from "./hooks/use-http";
 
 function App() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [tasks, setTasks] = useState([]);
-
-  const fetchTasks = async (taskText) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      console.log(process.env.REACT_APP_FIREBASE_CONNECTION);
-      const response = await fetch(process.env.REACT_APP_FIREBASE_CONNECTION);
-
-      if (!response.ok) {
-        throw new Error("Request failed!");
-      }
-
-      const data = await response.json();
-
-      const loadedTasks = [];
-
-      for (const taskKey in data) {
-        loadedTasks.push({ id: taskKey, text: data[taskKey].text });
-      }
-
-      setTasks(loadedTasks);
-    } catch (err) {
-      setError(err.message || "Something went wrong!");
+  const transformTasks = (tasksObj) => {
+    const loadedTasks = [];
+    for (const taskKey in tasksObj) {
+      loadedTasks.push({ id: taskKey, text: tasksObj[taskKey].text });
     }
-    setIsLoading(false);
+    setTasks(loadedTasks);
   };
+  const {
+    isLoading,
+    error,
+    sendRequest: fetchTasks,
+  } = useHttp(
+    { url: process.env.REACT_APP_FIREBASE_CONNECTION },
+    transformTasks
+  );
 
   useEffect(() => {
     fetchTasks();
