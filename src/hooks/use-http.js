@@ -8,11 +8,10 @@ const useHttp = (resquestConfig, applyData) => {
     setIsLoading(true);
     setError(null);
     try {
-      console.log(process.env.REACT_APP_FIREBASE_CONNECTION);
       const response = await fetch(resquestConfig.url, {
-        method: resquestConfig.method,
-        headers: resquestConfig.headers,
-        body: JSON.stringify(resquestConfig.body),
+        method: resquestConfig.method ? resquestConfig.method : "GET",
+        headers: resquestConfig.headers ? resquestConfig.headers : {},
+        body: resquestConfig.body ? JSON.stringify(resquestConfig.body) : null,
       });
       if (!response.ok) {
         throw new Error("Request failed!");
